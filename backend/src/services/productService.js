@@ -144,20 +144,47 @@ class ProductService {
 
         return price;
     }
-    /* Create a new product or service */
+    /* Create a new product or service with optional variants */
     static async create(data) {
         if (!data.slug) {
             data.slug = data.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, '');
         }
-        return Product.create(data);
+
+        return Product.create(data, {
+            include: [{ model: ProductVariant, as: 'variants' }]
+        });
     }
 
-    /* Update an existing product or service */
+    /* Update an existing product or service and reconcile its variants */
     static async update(id, data) {
-        const product = await Product.findByPk(id);
+        const product = await Product.findByPk(id, { include: ['variants'] });
         if (!product) throw new AppError('Product not found', 404);
 
-        return product.update(data);
+        await product.update(data);
+
+        /* Reconcile variants if provided */
+        if (data.variants && Array.isArray(data.variants)) {
+            const incomingIds = data.variants.filter(v => v.id).map(v => v.id);
+
+            /* Remove variants not present in incoming data */
+            await ProductVariant.destroy({
+                where: {
+                    productId: id,
+                    id: { [Op.notIn]: incomingIds.length ? incomingIds : [0] }
+                }
+            });
+
+            /* Upsert remaining variants */
+            for (const v of data.variants) {
+                if (v.id) {
+                    await ProductVariant.update(v, { where: { id: v.id, productId: id } });
+                } else {
+                    await ProductVariant.create({ ...v, productId: id });
+                }
+            }
+        }
+
+        return product.reload({ include: ['variants', 'category'] });
     }
 
     /* Delete (archive) a product or service */

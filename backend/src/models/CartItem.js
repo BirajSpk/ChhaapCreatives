@@ -33,6 +33,11 @@ const CartItem = sequelize.define('CartItem', {
         defaultValue: 1,
         validate: { min: 1 },
     },
+    customizationData: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        comment: 'Stores design uploads, custom sizes, and other service-specific data',
+    },
 }, {
     tableName: 'cart_items',
     indexes: [

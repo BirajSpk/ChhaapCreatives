@@ -15,9 +15,6 @@ const ProductDetail = () => {
     const { addToCart } = useCart();
     const navigate = useNavigate();
 
-    const [designFile, setDesignFile] = useState(null);
-    const [customDimensions, setCustomDimensions] = useState({ width: 1, height: 1 });
-
     useEffect(() => {
         const fetchProduct = async () => {
             setLoading(true);
@@ -28,10 +25,13 @@ const ProductDetail = () => {
                     if (res.data.data.variants?.length > 0) {
                         setSelectedVariant(res.data.data.variants[0]);
                     }
+                    if (res.data.data.minOrderQuantity) {
+                        setQuantity(res.data.data.minOrderQuantity);
+                    }
                 }
             } catch (error) {
                 console.error('Failed to fetch product');
-                toast.error('Service not found or unavailable');
+                toast.error('Product not found or unavailable');
             } finally {
                 setLoading(false);
             }
@@ -56,25 +56,14 @@ const ProductDetail = () => {
     }
     const gallery = images?.length > 0 ? images : [{ url: 'https://via.placeholder.com/600x600?text=Chhaap', altText: product.name }];
 
-    /* Calculate Area for Flex/Banner */
-    const isFlex = product.category?.slug === 'flex-banner';
-    const area = isFlex ? customDimensions.width * customDimensions.height : 1;
-    const totalPrice = (parseFloat(product.basePrice) + (selectedVariant?.priceModifier || 0)) * area * quantity;
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setDesignFile(file);
-            toast.success(`Design \"${file.name}\" uploaded!`);
-        }
-    };
+    const totalPrice = (parseFloat(product.basePrice) + (selectedVariant?.priceModifier || 0)) * quantity;
 
     const handleAddToCart = () => {
-        const additionalInfo = {
-            designFile: designFile?.name,
-            dimensions: isFlex ? customDimensions : null
-        };
-        addToCart(product, selectedVariant, quantity, additionalInfo);
+        if (quantity < (product.minOrderQuantity || 1)) {
+            toast.error(`Minimum order quantity is ${product.minOrderQuantity}`);
+            return;
+        }
+        addToCart(product, selectedVariant, quantity);
         toast.success(`${product.name} added to cart!`);
     };
 
@@ -84,15 +73,13 @@ const ProductDetail = () => {
             <nav className="flex items-center gap-2 text-xs font-medium text-gray-500 mb-10 overflow-x-auto whitespace-nowrap scrollbar-hide">
                 <Link to="/" className="hover:text-brand-600">Home</Link>
                 <ChevronRight size={14} />
-                <Link to={product.type === 'service' ? '/services' : '/products'} className="hover:text-brand-600">
-                    {product.type === 'service' ? 'Services' : 'Products'}
-                </Link>
+                <Link to="/products" className="hover:text-brand-600">Products</Link>
                 <ChevronRight size={14} />
                 <span className="text-gray-900 dark:text-white capitalize">{product.name}</span>
             </nav>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-                {/* ... (Image Gallery remains same) ... */}
+                {/* Image Gallery */}
                 <div className="flex flex-col gap-6">
                     <div className="glass-card overflow-hidden rounded-glass-lg aspect-square border-white/50 dark:border-white/5 relative group">
                         <img
@@ -131,72 +118,25 @@ const ProductDetail = () => {
                         <h1 className="heading-lg dark:text-white">{product.name}</h1>
                         <div className="flex items-center gap-4 mt-2">
                             <span className="text-3xl font-bold dark:text-white">
-                                {product.type === 'service' ? 'Consultation' : `Rs. ${totalPrice.toLocaleString()}`}
+                                Rs. {totalPrice.toLocaleString()}
                             </span>
-                            {product.type !== 'service' && <span className="text-xs text-gray-400 uppercase tracking-wider font-medium px-2 py-1 rounded bg-gray-100 dark:bg-white/5">Inclusive of tax</span>}
+                            <span className="text-xs text-gray-400 uppercase tracking-wider font-medium px-2 py-1 rounded bg-gray-100 dark:bg-white/5">Inclusive of tax</span>
                         </div>
+                        {product.minOrderQuantity > 1 && (
+                            <span className="text-[10px] text-brand-600 font-bold uppercase tracking-widest bg-brand-50 dark:bg-brand-900/20 px-3 py-1 rounded w-fit">
+                                Min. Order: {product.minOrderQuantity} units
+                            </span>
+                        )}
                     </div>
 
                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
                         {product.description}
                     </p>
 
-                    {/* Custom Dimensions for Flex */}
-                    {isFlex && (
-                        <div className="flex flex-col gap-4 p-6 rounded-2xl bg-brand-50/50 dark:bg-brand-900/10 border border-brand-100 dark:border-brand-800/20">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-brand-600">Custom Dimensions (Feet)</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-bold text-gray-400">Width (ft)</label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={customDimensions.width}
-                                        onChange={(e) => setCustomDimensions(p => ({ ...p, width: parseFloat(e.target.value) || 1 }))}
-                                        className="input-field py-2 text-sm"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-bold text-gray-400">Height (ft)</label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={customDimensions.height}
-                                        onChange={(e) => setCustomDimensions(p => ({ ...p, height: parseFloat(e.target.value) || 1 }))}
-                                        className="input-field py-2 text-sm"
-                                    />
-                                </div>
-                            </div>
-                            <span className="text-[10px] text-brand-600/60 font-medium italic">* Total Area: {area} sq. ft.</span>
-                        </div>
-                    )}
-
-                    {/* Design Upload */}
-                    {product.type === 'product' && (
-                        <div className="flex flex-col gap-4">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">Upload Your Design</h4>
-                            <div className="relative group">
-                                <input
-                                    type="file"
-                                    onChange={handleFileChange}
-                                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                                    accept=".pdf,.ai,.psd,.jpg,.png,.tiff"
-                                />
-                                <div className="border-2 border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-3 transition-all group-hover:border-brand-400 group-hover:bg-brand-50/10">
-                                    <Plus className="text-gray-400 group-hover:text-brand-600 group-hover:scale-110 transition-all" size={32} />
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-sm font-bold dark:text-white">{designFile ? designFile.name : 'Select or Drop Design'}</span>
-                                        <span className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">PDF, AI, PSD, High-Res JPG (Max 50MB)</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     {/* Variant Selection */}
-                    {product.type === 'product' && product.variants?.length > 0 && (
+                    {product.variants?.length > 0 && (
                         <div className="flex flex-col gap-4">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">Select Variant / Quality</h4>
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">Available Options</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {product.variants.map((v) => (
                                     <button
@@ -209,7 +149,7 @@ const ProductDetail = () => {
                                             {selectedVariant?.id === v.id && <Check size={16} className="text-brand-600" />}
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xs text-brand-700 font-bold">+ Rs. {v.priceModifier}</span>
+                                            {v.priceModifier > 0 && <span className="text-xs text-brand-700 font-bold">+ Rs. {v.priceModifier}</span>}
                                             {v.lamination && <span className="text-[10px] text-gray-400 capitalize">• {v.lamination} lamination</span>}
                                         </div>
                                     </button>
@@ -220,68 +160,48 @@ const ProductDetail = () => {
 
                     {/* Quantity & Actions */}
                     <div className="flex flex-col gap-6 pt-4 border-t border-gray-100 dark:border-white/5">
-                        {product.type === 'product' && (
-                            <div className="flex items-center gap-10">
-                                <div className="flex flex-col gap-2">
-                                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">Quantity</h4>
-                                    <div className="flex items-center gap-4 p-1 rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 w-fit">
-                                        <button
-                                            onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                                            className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors dark:text-white"
-                                        >
-                                            <Minus size={18} />
-                                        </button>
-                                        <span className="text-lg font-bold min-w-[30px] text-center dark:text-white">{quantity}</span>
-                                        <button
-                                            onClick={() => setQuantity(q => q + 1)}
-                                            className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors dark:text-white"
-                                        >
-                                            <Plus size={18} />
-                                        </button>
-                                    </div>
+                        <div className="flex items-center gap-10">
+                            <div className="flex flex-col gap-2">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">Quantity</h4>
+                                <div className="flex items-center gap-4 p-1 rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 w-fit">
+                                    <button
+                                        onClick={() => setQuantity(q => Math.max(product.minOrderQuantity || 1, q - 1))}
+                                        className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors dark:text-white"
+                                    >
+                                        <Minus size={18} />
+                                    </button>
+                                    <span className="text-lg font-bold min-w-[30px] text-center dark:text-white">{quantity}</span>
+                                    <button
+                                        onClick={() => setQuantity(q => q + 1)}
+                                        className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors dark:text-white"
+                                    >
+                                        <Plus size={18} />
+                                    </button>
                                 </div>
                             </div>
-                        )}
+                        </div>
 
                         <div className="flex flex-wrap gap-4">
-                            {product.type === 'product' ? (
-                                <>
-                                    <button
-                                        onClick={handleAddToCart}
-                                        className="btn-primary flex-1 py-4 gap-2 whitespace-nowrap"
-                                    >
-                                        <ShoppingCart size={20} />
-                                        Add to Cart
-                                    </button>
-                                    <button className="btn-secondary py-4 px-10">
-                                        Buy Now
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <a
-                                        href={`https://wa.me/9860184030?text=I'm interested in ${product.name} service.`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="btn-primary flex-1 py-4 gap-2 whitespace-nowrap bg-[#25D366] hover:bg-[#128C7E]"
-                                    >
-                                        WhatsApp Inquiry
-                                    </a>
-                                    <Link to="/contact" className="btn-secondary py-4 px-10">
-                                        Contact Us
-                                    </Link>
-                                </>
-                            )}
+                            <button
+                                onClick={handleAddToCart}
+                                className="btn-primary flex-1 py-4 gap-2 whitespace-nowrap"
+                            >
+                                <ShoppingCart size={20} />
+                                Add {quantity > 1 ? `${quantity} Items` : 'to Cart'}
+                            </button>
+                            <button className="btn-secondary py-4 px-10">
+                                Buy Now
+                            </button>
                         </div>
                     </div>
 
                     {/* Features List */}
                     <div className="grid grid-cols-2 gap-y-4 gap-x-8 pt-6">
                         {[
-                            'High Quality Printing',
-                            'Custom Sizes Available',
+                            'Premium Quality Material',
+                            'Secure Packaging',
                             'Fast Turnaround',
-                            'Delivery Available'
+                            'Direct Shipping'
                         ].map((item, i) => (
                             <div key={i} className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                 <div className="h-5 w-5 flex items-center justify-center rounded-full bg-green-500/10 text-green-600">

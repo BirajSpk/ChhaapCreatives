@@ -10,7 +10,8 @@ import {
     LogOut,
     TrendingUp,
     CreditCard,
-    List
+    List,
+    MousePointer2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -52,7 +53,8 @@ const AdminLayout = () => {
                 <nav className="flex-1 px-4 py-4 flex flex-col gap-1 overflow-y-auto">
                     <AdminNavLink to="/admin" icon={<LayoutDashboard size={20} />} label="Dashboard" end onClick={() => setIsSidebarOpen(false)} />
                     <AdminNavLink to="/admin/orders" icon={<ShoppingBag size={20} />} label="Orders" onClick={() => setIsSidebarOpen(false)} />
-                    <AdminNavLink to="/admin/products" icon={<Layers size={20} />} label="Inventory" onClick={() => setIsSidebarOpen(false)} />
+                    <AdminNavLink to="/admin/products" icon={<Layers size={20} />} label="Products" onClick={() => setIsSidebarOpen(false)} />
+                    <AdminNavLink to="/admin/services" icon={<MousePointer2 size={20} />} label="Services" onClick={() => setIsSidebarOpen(false)} />
                     <AdminNavLink to="/admin/categories" icon={<List size={20} />} label="Categories" onClick={() => setIsSidebarOpen(false)} />
                     <AdminNavLink to="/admin/users" icon={<Users size={20} />} label="Users" onClick={() => setIsSidebarOpen(false)} />
                     <AdminNavLink to="/admin/blogs" icon={<FileText size={20} />} label="Blogs" onClick={() => setIsSidebarOpen(false)} />

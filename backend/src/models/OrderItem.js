@@ -42,6 +42,11 @@ const OrderItem = sequelize.define('OrderItem', {
         allowNull: true,
         comment: 'Uploaded custom design file path',
     },
+    customizationData: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        comment: 'Stores detailed configuration (sizes, preview parameters) at order time',
+    },
 }, {
     tableName: 'order_items',
     indexes: [

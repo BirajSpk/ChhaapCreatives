@@ -60,6 +60,11 @@ const Product = sequelize.define('Product', {
         allowNull: true,
         comment: 'Configuration for dynamic pricing: { sizes: [], laminations: [], etc. }',
     },
+    minOrderQuantity: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        defaultValue: 1,
+    },
     isActive: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,

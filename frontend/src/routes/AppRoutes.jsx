@@ -49,6 +49,9 @@ const NotFound = () => (
     </div>
 );
 
+import ServiceConfig from '../pages/ServiceConfig';
+import AdminServices from '../pages/AdminServices';
+
 const AppRoutes = () => {
     return (
         <Routes>
@@ -59,7 +62,7 @@ const AppRoutes = () => {
                 <Route path="products" element={<Products />} />
                 <Route path="products/:slug" element={<ProductDetail />} />
                 <Route path="services" element={<Services />} />
-                <Route path="services/:slug" element={<ProductDetail />} />
+                <Route path="services/:slug" element={<ServiceConfig />} />
                 <Route path="cart" element={<Cart />} />
                 <Route path="checkout" element={<Checkout />} />
                 <Route path="profile" element={<Profile />} />
@@ -84,6 +87,7 @@ const AppRoutes = () => {
                     <Route index element={<AdminDashboard />} />
                     <Route path="orders" element={<AdminOrders />} />
                     <Route path="products" element={<AdminProducts />} />
+                    <Route path="services" element={<AdminServices />} />
                     <Route path="categories" element={<AdminCategories />} />
                     <Route path="users" element={<AdminUsers />} />
                     <Route path="blogs" element={<AdminBlogs />} />

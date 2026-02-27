@@ -7,7 +7,7 @@ const Home = () => {
     return (
         <div className="animate-fade-in">
             {/* Hero Section */}
-            <section className="relative overflow-hidden pt-10 pb-20 lg:pt-20 lg:pb-32">
+            <section className="relative overflow-hidden pt-0 pb-20 lg:pt-8 lg:pb-32">
                 <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                     <div className="flex flex-col gap-8 z-10">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400 text-xs font-bold uppercase tracking-widest border border-brand-200 dark:border-brand-800/50 w-fit">
