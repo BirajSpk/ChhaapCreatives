@@ -7,6 +7,7 @@ const AdminCategories = () => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [search, setSearch] = useState('');
     const [currentCategory, setCurrentCategory] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
@@ -80,6 +81,10 @@ const AdminCategories = () => {
         }
     };
 
+    const filtered = categories.filter(c =>
+        c.name.toLowerCase().includes(search.toLowerCase())
+    );
+
     return (
         <div className="flex flex-col gap-8 animate-fade-in">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -87,13 +92,25 @@ const AdminCategories = () => {
                     <h1 className="heading-md dark:text-white m-0 uppercase tracking-widest text-sm font-black text-brand-600">Category Taxonomy</h1>
                     <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">Global Navigation Logic</span>
                 </div>
-                <button
-                    onClick={() => handleOpenModal()}
-                    className="w-full md:w-auto btn-primary py-4 px-8 rounded-2xl flex items-center justify-center gap-3 text-sm shadow-xl shadow-brand-600/20"
-                >
-                    <Plus size={18} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">New classification</span>
-                </button>
+                <div className="flex items-center gap-4 w-full md:w-auto">
+                    <div className="relative flex-1 md:w-64">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Search categories..."
+                            className="input-field pl-12 py-3 text-sm"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <button
+                        onClick={() => handleOpenModal()}
+                        className="btn-primary py-3.5 px-6 rounded-xl flex items-center justify-center gap-3 text-sm shadow-xl shadow-brand-600/20"
+                    >
+                        <Plus size={18} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">New classification</span>
+                    </button>
+                </div>
             </div>
 
             {loading ? (

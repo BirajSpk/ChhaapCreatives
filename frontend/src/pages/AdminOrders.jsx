@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 const AdminOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [statusFilter, setStatusFilter] = useState('all');
     const [filter, setFilter] = useState('');
 
     useEffect(() => {
@@ -32,27 +33,44 @@ const AdminOrders = () => {
         }
     };
 
-    const filtered = orders.filter(o =>
-        o.id.toString().includes(filter) ||
-        o.user?.name?.toLowerCase().includes(filter.toLowerCase())
-    );
+    const filtered = orders.filter(o => {
+        const matchesSearch = o.id.toString().includes(filter) ||
+            o.user?.name?.toLowerCase().includes(filter.toLowerCase());
+        const matchesStatus = statusFilter === 'all' || o.status === statusFilter;
+        return matchesSearch && matchesStatus;
+    });
 
     return (
         <div className="flex flex-col gap-8 animate-fade-in">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                 <div className="flex flex-col gap-1">
                     <h1 className="heading-md dark:text-white m-0 uppercase tracking-widest text-sm font-black text-brand-600">Order Streams</h1>
                     <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">{filtered.length} Active Transitions Found</span>
                 </div>
-                <div className="relative w-full md:w-80">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search ID or Customer..."
-                        className="input-field pl-12 py-3 text-sm"
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                    />
+
+                <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+                    <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl">
+                        {['all', 'pending', 'processing', 'shipped', 'delivered'].map((s) => (
+                            <button
+                                key={s}
+                                onClick={() => setStatusFilter(s)}
+                                className={`px-4 py-1.5 text-[9px] font-black uppercase rounded-lg transition-all ${statusFilter === s ? 'bg-white dark:bg-brand-600 text-brand-600 dark:text-white shadow-soft' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="relative flex-1 md:w-64">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Filter ID/User..."
+                            className="input-field pl-12 py-3 text-sm"
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -96,9 +114,9 @@ const AdminOrders = () => {
                                         <td className="px-8 py-6 font-bold dark:text-white">Rs. {parseFloat(order.totalAmount).toLocaleString()}</td>
                                         <td className="px-8 py-6">
                                             <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.1em] border ${order.status === 'delivered' ? 'bg-green-100/10 text-green-600 border-green-200/20' :
-                                                    order.status === 'shipped' ? 'bg-blue-100/10 text-blue-600 border-blue-200/20' :
-                                                        order.status === 'processing' ? 'bg-orange-100/10 text-orange-600 border-orange-200/20' :
-                                                            'bg-brand-100/10 text-brand-600 border-brand-200/20'
+                                                order.status === 'shipped' ? 'bg-blue-100/10 text-blue-600 border-blue-200/20' :
+                                                    order.status === 'processing' ? 'bg-orange-100/10 text-orange-600 border-orange-200/20' :
+                                                        'bg-brand-100/10 text-brand-600 border-brand-200/20'
                                                 }`}>
                                                 {order.status}
                                             </span>
