@@ -7,7 +7,8 @@ import {
     ArrowUpRight,
     ArrowDownRight,
     Loader2,
-    Layers
+    Layers,
+    Shield
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -110,8 +111,8 @@ const AdminDashboard = () => {
                                             <td className="px-6 py-4 dark:text-gray-300 font-medium">{order.user?.name || 'Guest'}</td>
                                             <td className="px-6 py-4">
                                                 <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${order.status === 'delivered' ? 'bg-green-100 text-green-600' :
-                                                        order.status === 'processing' ? 'bg-orange-100 text-orange-600' :
-                                                            'bg-brand-100 text-brand-600'
+                                                    order.status === 'processing' ? 'bg-orange-100 text-orange-600' :
+                                                        'bg-brand-100 text-brand-600'
                                                     }`}>
                                                     {order.status}
                                                 </span>
