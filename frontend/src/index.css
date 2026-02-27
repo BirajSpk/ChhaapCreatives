@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+ * Chhaap Creatives - Global Styles
+ * Brown/Black theme with glassmorphism
+ * ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply font-sans text-gray-900 bg-neutral-light dark:bg-neutral-dark dark:text-gray-100 transition-colors duration-300;
+  }
+
+  ::selection {
+    @apply bg-brand-500/30 text-brand-900 dark:text-brand-100;
+  }
+}
+
+@layer components {
+
+  /* Glassmorphism Card */
+  .glass-card {
+    @apply bg-white/60 dark:bg-white/5 backdrop-blur-[20px] border border-white/30 dark:border-white/10 rounded-glass shadow-glass dark:shadow-glass-dark;
+  }
+
+  .glass-card-lg {
+    @apply bg-white/50 dark:bg-white/5 backdrop-blur-[40px] border border-white/25 dark:border-white/10 rounded-glass-lg shadow-glass-lg;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-xl transition-all duration-200 shadow-soft hover:shadow-soft-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-dark disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-white dark:bg-white/10 border border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-200 font-medium rounded-xl transition-all duration-200 shadow-soft hover:shadow-soft-lg hover:border-brand-300 dark:hover:border-brand-500/30 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Ghost Button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/30 font-medium rounded-xl transition-all duration-200 focus:outline-none active:scale-[0.98];
+  }
+
+  /* Input Field */
+  .input-field {
+    @apply w-full px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/20 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500;
+  }
+
+  /* Section Container */
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Page Section */
+  .page-section {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+
+  /* Heading Styles */
+  .heading-lg {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-display font-bold tracking-tight;
+  }
+
+  .heading-md {
+    @apply text-2xl sm:text-3xl font-display font-bold tracking-tight;
+  }
+
+  .heading-sm {
+    @apply text-xl sm:text-2xl font-display font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+
+  /* Hide scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

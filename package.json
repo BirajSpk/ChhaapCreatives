@@ -1,0 +1,28 @@
+{
+  "name": "chhaap-creatives",
+  "version": "1.0.0",
+  "description": "Chhaap Creatives - Printing & Design Services Platform",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "install:all": "cd frontend && npm install && cd ../backend && npm install",
+    "build:frontend": "cd frontend && npm run build",
+    "db:sync": "cd backend && npm run db:sync",
+    "db:seed": "cd backend && npm run db:seed"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Chhaap Creatives",
+  "license": "MIT",
+  "keywords": [
+    "printing",
+    "design",
+    "ecommerce",
+    "nepal",
+    "react",
+    "nodejs",
+    "mysql"
+  ]
+}

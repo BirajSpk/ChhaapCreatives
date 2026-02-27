@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/chhaapFavicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Chhaap Creatives - Premium Printing & Design Services in Kathmandu, Nepal. Stickers, Banners, NFC Business Cards, Certificates, and more." />
+  <meta name="keywords"
+    content="printing, design, stickers, banners, business cards, NFC, Kathmandu, Nepal, Chhaap Creatives" />
+  <meta name="author" content="Chhaap Creatives" />
+  <meta name="theme-color" content="#5C4033" />
+  <title>Chhaap Creatives - Printing & Design Services</title>
+  <style>
+    /* Prevent dark mode flicker */
+    html.dark {
+      background-color: #121010;
+    }
+
+    html:not(.dark) {
+      background-color: #f8f6f4;
+    }
+  </style>
+  <script>
+    (function () {
+      try {
+        const theme = localStorage.getItem('theme');
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+        if (theme === 'dark' || (theme !== 'light' && supportDarkMode)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) { }
+    })();
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>
