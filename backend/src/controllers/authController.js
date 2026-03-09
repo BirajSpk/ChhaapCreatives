@@ -24,7 +24,7 @@ class AuthController {
     /* POST /api/auth/register */
     static async register(req, res, next) {
         try {
-            const { name, email, password, phone } = req.body;
+            const { name, email, password, phone, rememberMe } = req.body;
 
             const user = await AuthService.createUser({ name, email, password, phone });
 
@@ -35,14 +35,18 @@ class AuthController {
             /* Send verification email (non-blocking) */
             emailService.sendVerificationEmail(user, verificationToken).catch(() => { });
 
-            /* Generate tokens */
-            const accessToken = AuthService.generateAccessToken(user);
-            const refreshToken = AuthService.generateRefreshToken(user);
-            await AuthService.storeRefreshToken(user.id, refreshToken);
+            /* Generate tokens with rememberMe option */
+            const accessToken = AuthService.generateAccessToken(user, rememberMe);
+            const refreshToken = AuthService.generateRefreshToken(user, rememberMe);
+            await AuthService.storeRefreshToken(user.id, refreshToken, rememberMe);
+
+            /* Calculate cookie expiry based on rememberMe */
+            const accessTokenMaxAge = rememberMe ? 7 * 24 * 60 * 60 * 1000 : 15 * 60 * 1000;
+            const refreshTokenMaxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
 
             /* Set cookies */
-            res.cookie('accessToken', accessToken, { ...COOKIE_OPTIONS, maxAge: 15 * 60 * 1000 });
-            res.cookie('refreshToken', refreshToken, { ...COOKIE_OPTIONS, maxAge: 7 * 24 * 60 * 60 * 1000 });
+            res.cookie('accessToken', accessToken, { ...COOKIE_OPTIONS, maxAge: accessTokenMaxAge });
+            res.cookie('refreshToken', refreshToken, { ...COOKIE_OPTIONS, maxAge: refreshTokenMaxAge });
 
             return successResponse(res, {
                 user: {
@@ -62,7 +66,7 @@ class AuthController {
     /* POST /api/auth/login */
     static async login(req, res, next) {
         try {
-            const { email, password } = req.body;
+            const { email, password, rememberMe } = req.body;
             console.log(`Login attempt: ${email}`);
 
             const user = await AuthService.findByEmail(email);
@@ -77,14 +81,18 @@ class AuthController {
                 return errorResponse(res, 'Invalid email or password', 401);
             }
 
-            /* Generate tokens */
-            const accessToken = AuthService.generateAccessToken(user);
-            const refreshToken = AuthService.generateRefreshToken(user);
-            await AuthService.storeRefreshToken(user.id, refreshToken);
+            /* Generate tokens with rememberMe option */
+            const accessToken = AuthService.generateAccessToken(user, rememberMe);
+            const refreshToken = AuthService.generateRefreshToken(user, rememberMe);
+            await AuthService.storeRefreshToken(user.id, refreshToken, rememberMe);
+
+            /* Calculate cookie expiry based on rememberMe */
+            const accessTokenMaxAge = rememberMe ? 7 * 24 * 60 * 60 * 1000 : 15 * 60 * 1000;
+            const refreshTokenMaxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
 
             /* Set cookies */
-            res.cookie('accessToken', accessToken, { ...COOKIE_OPTIONS, maxAge: 15 * 60 * 1000 });
-            res.cookie('refreshToken', refreshToken, { ...COOKIE_OPTIONS, maxAge: 7 * 24 * 60 * 60 * 1000 });
+            res.cookie('accessToken', accessToken, { ...COOKIE_OPTIONS, maxAge: accessTokenMaxAge });
+            res.cookie('refreshToken', refreshToken, { ...COOKIE_OPTIONS, maxAge: refreshTokenMaxAge });
 
             return successResponse(res, {
                 user: {
@@ -133,9 +141,16 @@ class AuthController {
                 return errorResponse(res, 'Invalid refresh token', 401);
             }
 
-            /* Generate new access token */
-            const accessToken = AuthService.generateAccessToken(user);
-            res.cookie('accessToken', accessToken, { ...COOKIE_OPTIONS, maxAge: 15 * 60 * 1000 });
+            /* Check if remember me session has expired */
+            if (user.rememberMeEnabled && user.rememberMeExpires < new Date()) {
+                await AuthService.clearRefreshToken(user.id);
+                return errorResponse(res, 'Remember me session expired, please login again', 401);
+            }
+
+            /* Generate new access token with same remember me status */
+            const accessToken = AuthService.generateAccessToken(user, user.rememberMeEnabled);
+            const accessTokenMaxAge = user.rememberMeEnabled ? 7 * 24 * 60 * 60 * 1000 : 15 * 60 * 1000;
+            res.cookie('accessToken', accessToken, { ...COOKIE_OPTIONS, maxAge: accessTokenMaxAge });
 
             return successResponse(res, { accessToken }, 'Token refreshed');
         } catch (error) {

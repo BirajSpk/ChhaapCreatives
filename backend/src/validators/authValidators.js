@@ -21,11 +21,13 @@ const registerSchema = z.object({
     email: z.string().email('Invalid email address').max(255).trim().toLowerCase(),
     password: passwordSchema,
     phone: z.string().max(20).optional(),
+    rememberMe: z.boolean().optional().default(false),
 });
 
 const loginSchema = z.object({
     email: z.string().email('Invalid email address').trim().toLowerCase(),
     password: z.string().min(1, 'Password is required'),
+    rememberMe: z.boolean().optional().default(false),
 });
 
 const forgotPasswordSchema = z.object({

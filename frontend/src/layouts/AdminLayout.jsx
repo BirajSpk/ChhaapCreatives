@@ -29,16 +29,16 @@ const AdminLayout = () => {
             {/* Mobile Overlay */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[199] lg:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
 
             {/* Admin Sidebar */}
             <aside className={`
-                fixed inset-y-0 left-0 z-50 w-64 border-r border-gray-200 dark:border-white/5 
+                fixed inset-y-0 left-0 z-[200] w-64 border-r border-gray-200 dark:border-white/5  
                 bg-white dark:bg-black/40 backdrop-blur-xl flex flex-col h-screen 
-                transition-transform duration-300 lg:sticky lg:translate-x-0
+                transition-all duration-300 lg:sticky lg:w-64 lg:left-0 lg:translate-x-0
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             `}>
                 <div className="p-8 flex items-center justify-between">
@@ -78,10 +78,10 @@ const AdminLayout = () => {
 
             {/* Main Content Area */}
             <main className="flex-1 min-w-0">
-                <header className="h-20 bg-white/50 dark:bg-black/20 backdrop-blur-md border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-6 lg:px-10 sticky top-0 z-20">
+                <header className="h-20 bg-white/50 dark:bg-black/20 backdrop-blur-md border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-6 lg:px-10 sticky top-0 z-[100]">
                     <div className="flex items-center gap-4">
                         <button
-                            className="lg:hidden p-2 bg-gray-100 dark:bg-white/5 rounded-lg text-brand-600"
+                            className="lg:hidden p-2 bg-gray-100 dark:bg-white/5 rounded-lg text-brand-600 hover:bg-gray-200 dark:hover:bg-white/10 transition-all"
                             onClick={() => setIsSidebarOpen(true)}
                         >
                             <List size={24} />

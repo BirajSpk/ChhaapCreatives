@@ -12,6 +12,12 @@ async function checkAdmin() {
     console.log('Admin email:', admin.email);
     const match = await bcrypt.compare('Admin123!@#', admin.password);
     console.log('Password match:', match);
-    process.exit();
+    // process.exit();
 }
-checkAdmin();
+
+// Only run if executed directly (not imported)
+if (require.main === module) {
+    checkAdmin();
+}
+
+module.exports = { checkAdmin };

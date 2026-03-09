@@ -116,7 +116,7 @@ async function startServer() {
         emailService.initialize();
 
         /* Start HTTP server */
-        app.listen(config.port, () => {
+        const server = app.listen(config.port, () => {
             logger.info(`Chhaap Creatives API running on port ${config.port}`);
             logger.info(`Environment: ${config.nodeEnv}`);
             if (config.nodeEnv === 'development') {
@@ -124,12 +124,26 @@ async function startServer() {
                 logger.info(`Health: http://localhost:${config.port}/api/health`);
             }
         });
+
+        /* Return the server instance to keep the process alive */
+        return server;
     } catch (error) {
         logger.error('Server startup failed:', { error: error.message });
         process.exit(1);
     }
 }
 
-startServer();
+/* Start the server and keep a reference to it */
+(async () => {
+    try {
+        const server = await startServer();
+        // Keep reference to server to prevent process exit
+        process.on('SIGTERM', () => server.close());
+        process.on('SIGINT', () => server.close());
+    } catch (error) {
+        logger.error('Unhandled error in startServer:', { error: error.message });
+        process.exit(1);
+    }
+})();
 
 module.exports = app;

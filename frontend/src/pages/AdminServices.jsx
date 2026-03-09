@@ -167,9 +167,15 @@ const AdminServices = () => {
 
             {/* Service Edit Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-                    <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden relative z-10 border border-white/10 animate-scale-in">
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div 
+                        className="absolute inset-0 bg-black/80 backdrop-blur-sm z-[-1]" 
+                        onClick={() => setIsModalOpen(false)} 
+                    />
+                    
+                    {/* Modal Container */}
+                    <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden relative border border-white/10 animate-scale-in flex flex-col">
                         <div className="p-8 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-blue-500/5">
                             <div className="flex flex-col gap-1">
                                 <h2 className="text-xl font-bold dark:text-white uppercase tracking-tighter">

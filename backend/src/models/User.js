@@ -71,6 +71,16 @@ const User = sequelize.define('User', {
         type: DataTypes.TEXT,
         allowNull: true,
     },
+    rememberMeEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        comment: 'Whether user has enabled remember me functionality',
+    },
+    rememberMeExpires: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        comment: 'When the remember me session expires',
+    },
 }, {
     tableName: 'users',
     indexes: [

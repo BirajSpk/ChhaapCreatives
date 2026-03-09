@@ -171,9 +171,15 @@ const AdminProducts = () => {
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-                    <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden relative z-10 border border-white/10 animate-scale-in">
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div 
+                        className="absolute inset-0 bg-black/80 backdrop-blur-sm z-[-1]" 
+                        onClick={() => setIsModalOpen(false)} 
+                    />
+                    
+                    {/* Modal Container */}
+                    <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden relative border border-white/10 animate-scale-in flex flex-col">
                         <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-purple-600/5">
                             <h2 className="text-lg font-bold dark:text-white uppercase tracking-tighter">Product <span className="text-purple-600">Configuration</span></h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-red-500"><X size={20} /></button>

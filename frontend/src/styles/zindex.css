@@ -1,0 +1,32 @@
+/* ============================================
+ * Global Z-Index Layer System
+ * Ensures consistent stacking across the application
+ * ============================================ */
+
+:root {
+  /* Base Layers (0-50) */
+  --z-base: 0;
+  --z-content: 10;
+  --z-dropdown: 30;
+
+  /* Header & Navigation Layer (50-150) */
+  --z-navbar: 100;
+  --z-header-sticky: 100;
+
+  /* Sidebar & Overlay Layers (150-250) */
+  --z-sidebar: 200;
+  --z-sidebar-overlay: 199;
+
+  /* Modal & Dialog Layers (500-1100) */
+  --z-backdrop: 900;
+  --z-dropdown-menu: 950;
+  --z-modal: 1000;
+  --z-modal-header-sticky: 1010;
+  --z-toast-notification: 2000;
+  --z-tooltip: 2500;
+}
+
+/* Apply CSS variables as Tailwind arbitrary values:
+   Example: z-[var(--z-modal)]
+   Or use with calculated values
+*/

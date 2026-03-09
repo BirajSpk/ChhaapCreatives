@@ -6,25 +6,33 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [rememberMe, setRememberMe] = useState(false);
 
     useEffect(() => {
         /* Check for existing session on mount */
         const checkAuth = async () => {
             const token = localStorage.getItem('token');
+            const storedRememberMe = localStorage.getItem('rememberMe') === 'true';
+            
             if (!token) {
                 setUser(null);
+                setRememberMe(false);
                 setLoading(false);
                 return;
             }
+
             try {
                 const response = await api.get('/auth/me');
                 if (response.data.success) {
                     setUser(response.data.data.user);
+                    setRememberMe(storedRememberMe);
                 }
             } catch (error) {
                 /* Token expired or invalid */
                 localStorage.removeItem('token');
+                localStorage.removeItem('rememberMe');
                 setUser(null);
+                setRememberMe(false);
             } finally {
                 setLoading(false);
             }
@@ -33,8 +41,14 @@ export const AuthProvider = ({ children }) => {
         checkAuth();
     }, []);
 
-    const login = (userData) => {
+    const login = (userData, isRememberMe = false) => {
         setUser(userData);
+        setRememberMe(isRememberMe);
+        if (isRememberMe) {
+            localStorage.setItem('rememberMe', 'true');
+        } else {
+            localStorage.removeItem('rememberMe');
+        }
     };
 
     const logout = async () => {
@@ -42,12 +56,14 @@ export const AuthProvider = ({ children }) => {
             await api.post('/auth/logout');
         } finally {
             localStorage.removeItem('token');
+            localStorage.removeItem('rememberMe');
             setUser(null);
+            setRememberMe(false);
         }
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, rememberMe, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -168,18 +168,23 @@ const AdminCategories = () => {
 
             {/* Premium Categories Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsModalOpen(false)} />
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div 
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[-1]" 
+                        onClick={() => setIsModalOpen(false)} 
+                    />
 
-                    <div className="bg-white dark:bg-[#121212] w-full max-w-lg max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative z-10 border border-white/10 animate-scale-in">
-                        <div className="p-8 flex justify-between items-center border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
+                    {/* Modal Container */}
+                    <div className="bg-white dark:bg-[#121212] w-full max-w-lg max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative border border-white/10 animate-scale-in">
+                        <div className="p-8 flex justify-between items-center border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 sticky top-0 z-[1010]">
                             <div className="flex flex-col">
                                 <h2 className="text-xl font-display font-black dark:text-white uppercase tracking-tighter">
                                     {currentCategory ? 'Modify' : 'Initialize'} <span className="text-brand-600 text-sm italic font-sans lowercase">taxonomy</span>
                                 </h2>
                                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Classification Management</p>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="h-10 w-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
+                            <button onClick={() => setIsModalOpen(false)} className="h-10 w-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
                                 <X size={20} />
                             </button>
                         </div>

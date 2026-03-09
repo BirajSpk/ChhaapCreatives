@@ -57,7 +57,7 @@ async function connectDatabase() {
 async function syncDatabase(options = {}) {
     try {
         const syncOptions = config.nodeEnv === 'development'
-            ? { alter: true, ...options }
+            ? { alter: false, force: false, ...options }
             : { ...options };
 
         await sequelize.sync(syncOptions);
@@ -65,6 +65,8 @@ async function syncDatabase(options = {}) {
         return true;
     } catch (error) {
         logger.error('Database sync failed:', error);
+        logger.warn('Continuing with server startup despite database sync error...');
+        /* Continue anyway - don't throw, just warn */
         return false;
     }
 }

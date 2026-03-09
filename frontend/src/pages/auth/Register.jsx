@@ -14,7 +14,8 @@ const registerSchema = z.object({
         .min(8, 'Password must be at least 8 characters')
         .regex(/[A-Z]/, 'Must contain one uppercase letter')
         .regex(/[0-9]/, 'Must contain one number'),
-    confirmPassword: z.string()
+    confirmPassword: z.string(),
+    rememberMe: z.boolean().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
@@ -26,7 +27,8 @@ const Register = () => {
         email: '',
         phone: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        rememberMe: false
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
@@ -34,8 +36,9 @@ const Register = () => {
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        const fieldValue = type === 'checkbox' ? checked : value;
+        setFormData(prev => ({ ...prev, [name]: fieldValue }));
         const fieldName = name === 'confirmPassword' ? 'confirmPassword' : name;
         if (errors[fieldName]) {
             setErrors(prev => ({ ...prev, [fieldName]: '' }));
@@ -54,7 +57,11 @@ const Register = () => {
             const response = await api.post('/auth/register', registerData);
 
             if (response.data.success) {
-                setAuthUser(response.data.data.user);
+                /* Store token for authenticated requests */
+                if (response.data.data.accessToken) {
+                    localStorage.setItem('token', response.data.data.accessToken);
+                }
+                setAuthUser(response.data.data.user, formData.rememberMe);
                 toast.success('Welcome to Chhaap Creatives! Your account is ready.');
                 navigate('/');
             }
@@ -203,6 +210,21 @@ const Register = () => {
                                 {errors.confirmPassword && <span className="text-[10px] leading-tight text-red-500 ml-1 mt-0.5">{errors.confirmPassword}</span>}
                             </div>
                         </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-2">
+                        <input
+                            id="rememberMe"
+                            name="rememberMe"
+                            type="checkbox"
+                            className="w-4 h-4 rounded accent-brand-600 cursor-pointer"
+                            checked={formData.rememberMe}
+                            onChange={handleChange}
+                            disabled={isLoading}
+                        />
+                        <label htmlFor="rememberMe" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">
+                            Keep me signed in for 30 days
+                        </label>
                     </div>
 
                     <button

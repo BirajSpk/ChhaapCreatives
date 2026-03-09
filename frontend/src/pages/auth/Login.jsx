@@ -9,18 +9,20 @@ import { z } from 'zod';
 const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
     password: z.string().min(1, 'Password is required'),
+    rememberMe: z.boolean().optional(),
 });
 
 const Login = () => {
-    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const { login: setAuthUser } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        const fieldValue = type === 'checkbox' ? checked : value;
+        setFormData(prev => ({ ...prev, [name]: fieldValue }));
         /* Clear error when user types */
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
@@ -43,7 +45,7 @@ const Login = () => {
                 if (response.data.data.accessToken) {
                     localStorage.setItem('token', response.data.data.accessToken);
                 }
-                setAuthUser(response.data.data.user);
+                setAuthUser(response.data.data.user, formData.rememberMe);
                 toast.success('Welcome back to Chhaap Creatives!');
                 navigate('/');
             }
@@ -119,6 +121,21 @@ const Login = () => {
                             />
                         </div>
                         {errors.password && <span className="text-xs text-red-500 ml-1 mt-0.5">{errors.password}</span>}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <input
+                            id="rememberMe"
+                            name="rememberMe"
+                            type="checkbox"
+                            className="w-4 h-4 rounded accent-brand-600 cursor-pointer"
+                            checked={formData.rememberMe}
+                            onChange={handleChange}
+                            disabled={isLoading}
+                        />
+                        <label htmlFor="rememberMe" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">
+                            Keep me signed in for 30 days
+                        </label>
                     </div>
 
                     <button

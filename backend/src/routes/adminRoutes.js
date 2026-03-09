@@ -7,6 +7,7 @@ const { Router } = require('express');
 const AdminController = require('../controllers/adminController');
 const ProductController = require('../controllers/productController');
 const CategoryController = require('../controllers/categoryController');
+const BlogController = require('../controllers/blogController');
 const { authenticate, authorize } = require('../middleware/auth');
 
 const router = Router();
@@ -37,5 +38,11 @@ router.delete('/users/:id', AdminController.deleteUser);
 router.post('/categories', CategoryController.createCategory);
 router.patch('/categories/:id', CategoryController.updateCategory);
 router.delete('/categories/:id', CategoryController.deleteCategory);
+
+/* Blog Management */
+router.get('/blogs', BlogController.getAllBlogsAdmin);
+router.post('/blogs', BlogController.createBlog);
+router.patch('/blogs/:id', BlogController.updateBlog);
+router.delete('/blogs/:id', BlogController.deleteBlog);
 
 module.exports = router;

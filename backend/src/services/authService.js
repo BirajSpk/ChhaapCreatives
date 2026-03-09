@@ -12,6 +12,14 @@ const { AppError } = require('../utils/helpers');
 
 const SALT_ROUNDS = 12;
 
+/* Token expiry times */
+const TOKEN_EXPIRY = {
+    accessToken: '15m',           /* 15 minutes for regular access */
+    refreshToken: '7d',            /* 7 days for regular refresh */
+    accessTokenRemember: '7d',     /* 7 days with remember me */
+    refreshTokenRemember: '30d',   /* 30 days with remember me */
+};
+
 class AuthService {
     /* Hash a plain text password */
     static async hashPassword(password) {
@@ -24,20 +32,22 @@ class AuthService {
     }
 
     /* Generate JWT access token */
-    static generateAccessToken(user) {
+    static generateAccessToken(user, rememberMe = false) {
+        const expiresIn = rememberMe ? TOKEN_EXPIRY.accessTokenRemember : TOKEN_EXPIRY.accessToken;
         return jwt.sign(
             { id: user.id, email: user.email, role: user.role },
             config.jwt.secret,
-            { expiresIn: config.jwt.expiresIn }
+            { expiresIn }
         );
     }
 
     /* Generate JWT refresh token */
-    static generateRefreshToken(user) {
+    static generateRefreshToken(user, rememberMe = false) {
+        const expiresIn = rememberMe ? TOKEN_EXPIRY.refreshTokenRemember : TOKEN_EXPIRY.refreshToken;
         return jwt.sign(
             { id: user.id },
             config.jwt.refreshSecret,
-            { expiresIn: config.jwt.refreshExpiresIn }
+            { expiresIn }
         );
     }
 
@@ -76,13 +86,46 @@ class AuthService {
     }
 
     /* Store refresh token for a user */
-    static async storeRefreshToken(userId, refreshToken) {
-        await User.update({ refreshToken }, { where: { id: userId } });
+    static async storeRefreshToken(userId, refreshToken, rememberMe = false) {
+        const rememberMeExpires = rememberMe ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null;
+        await User.update(
+            { 
+                refreshToken,
+                rememberMeEnabled: rememberMe,
+                rememberMeExpires: rememberMeExpires
+            },
+            { where: { id: userId } }
+        );
     }
 
     /* Clear refresh token (logout) */
     static async clearRefreshToken(userId) {
-        await User.update({ refreshToken: null }, { where: { id: userId } });
+        await User.update(
+            { 
+                refreshToken: null,
+                rememberMeEnabled: false,
+                rememberMeExpires: null
+            },
+            { where: { id: userId } }
+        );
+    }
+
+    /* Clear expired remember me sessions */
+    static async clearExpiredRememberMe() {
+        await User.update(
+            { 
+                rememberMeEnabled: false,
+                rememberMeExpires: null
+            },
+            { 
+                where: {
+                    rememberMeEnabled: true,
+                    rememberMeExpires: {
+                        [require('sequelize').Op.lt]: new Date()
+                    }
+                }
+            }
+        );
     }
 }
 
