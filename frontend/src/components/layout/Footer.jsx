@@ -113,6 +113,8 @@ const FooterLink = ({ to, children }) => (
 const SocialIcon = ({ icon, href }) => (
     <a
         href={href}
+        target="_blank"
+        rel="noopener noreferrer"
         className="h-10 w-10 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-brand-600 hover:text-white hover:border-brand-600 dark:hover:bg-brand-600 transition-all shadow-soft"
     >
         {icon}
