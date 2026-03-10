@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Lock, Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
+import { Lock, Loader2 } from 'lucide-react';
+import { PasswordInput } from '../../components/inputs/PasswordInput';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -10,7 +11,6 @@ const ResetPassword = () => {
     const navigate = useNavigate();
 
     const [form, setForm] = useState({ password: '', confirmPassword: '' });
-    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
@@ -54,42 +54,25 @@ const ResetPassword = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                    <div className="flex flex-col gap-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">New Password</label>
-                        <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                            <input
-                                type={showPassword ? 'text' : 'password'}
-                                required
-                                className="input-field pl-12 pr-12"
-                                placeholder="••••••••"
-                                value={form.password}
-                                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-600 transition-colors"
-                            >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                            </button>
-                        </div>
-                    </div>
+                    <PasswordInput
+                        name="password"
+                        placeholder="••••••••"
+                        label="New Password"
+                        value={form.password}
+                        onChange={(e) => setForm({ ...form, password: e.target.value })}
+                        icon={Lock}
+                        disabled={loading}
+                    />
 
-                    <div className="flex flex-col gap-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">Confirm Password</label>
-                        <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                            <input
-                                type={showPassword ? 'text' : 'password'}
-                                required
-                                className="input-field pl-12"
-                                placeholder="••••••••"
-                                value={form.confirmPassword}
-                                onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                            />
-                        </div>
-                    </div>
+                    <PasswordInput
+                        name="confirmPassword"
+                        placeholder="••••••••"
+                        label="Confirm Password"
+                        value={form.confirmPassword}
+                        onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                        icon={Lock}
+                        disabled={loading}
+                    />
 
                     <button
                         type="submit"

@@ -11,7 +11,8 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         /* Check for existing session on mount */
         const checkAuth = async () => {
-            const token = localStorage.getItem('token');
+            // Try to get token from both localStorage (30-day) and sessionStorage (session)
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const storedRememberMe = localStorage.getItem('rememberMe') === 'true';
             
             if (!token) {
@@ -31,6 +32,7 @@ export const AuthProvider = ({ children }) => {
                 /* Token expired or invalid */
                 localStorage.removeItem('token');
                 localStorage.removeItem('rememberMe');
+                sessionStorage.removeItem('token');
                 setUser(null);
                 setRememberMe(false);
             } finally {
@@ -44,10 +46,16 @@ export const AuthProvider = ({ children }) => {
     const login = (userData, isRememberMe = false) => {
         setUser(userData);
         setRememberMe(isRememberMe);
+        
+        /* Store token based on rememberMe preference */
         if (isRememberMe) {
+            /* 30-day persistence with localStorage */
             localStorage.setItem('rememberMe', 'true');
+            /* Token will be set by API call - store it in localStorage */
         } else {
+            /* Session-only with sessionStorage */
             localStorage.removeItem('rememberMe');
+            /* Token will be stored in sessionStorage via API interceptor */
         }
     };
 
@@ -57,6 +65,7 @@ export const AuthProvider = ({ children }) => {
         } finally {
             localStorage.removeItem('token');
             localStorage.removeItem('rememberMe');
+            sessionStorage.removeItem('token');
             setUser(null);
             setRememberMe(false);
         }

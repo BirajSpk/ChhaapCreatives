@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layers, Plus, Edit, Trash2, Search, Loader2, Save, X, Settings, List, Check } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { PortalModal } from '../components/Modal/PortalModal';
 
 const AdminProducts = () => {
     const [items, setItems] = useState([]);
@@ -170,105 +171,95 @@ const AdminProducts = () => {
             )}
 
             {/* Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-                    {/* Backdrop */}
-                    <div 
-                        className="absolute inset-0 bg-black/80 backdrop-blur-sm z-[-1]" 
-                        onClick={() => setIsModalOpen(false)} 
-                    />
-                    
-                    {/* Modal Container */}
-                    <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden relative border border-white/10 animate-scale-in flex flex-col">
-                        <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-purple-600/5">
-                            <h2 className="text-lg font-bold dark:text-white uppercase tracking-tighter">Product <span className="text-purple-600">Configuration</span></h2>
-                            <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-red-500"><X size={20} /></button>
+            <PortalModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={currentItem ? 'Edit' : 'Create'}
+                subtitle="Product Configuration"
+                size="max-w-2xl"
+            >
+                <form onSubmit={handleSave} className="flex flex-col gap-6">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold uppercase text-gray-400">Name</label>
+                            <input type="text" required className="input-field py-2.5" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold uppercase text-gray-400">Slug</label>
+                            <input type="text" className="input-field py-2.5 font-mono text-xs" value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })} />
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-bold uppercase text-gray-400">Description</label>
+                        <textarea className="input-field py-2.5 h-20 resize-none text-xs" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold uppercase text-gray-400">Base Price (Rs.)</label>
+                            <input type="number" required className="input-field py-2.5" value={formData.basePrice} onChange={e => setFormData({ ...formData, basePrice: e.target.value })} />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold uppercase text-gray-400">Min. Quantity (MOQ)</label>
+                            <input type="number" required className="input-field py-2.5" value={formData.minOrderQuantity} onChange={e => setFormData({ ...formData, minOrderQuantity: e.target.value })} />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold uppercase text-gray-400">Category</label>
+                            <select className="input-field py-2.5" value={formData.categoryId} onChange={e => setFormData({ ...formData, categoryId: e.target.value })}>
+                                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Variants Section */}
+                    <div className="flex flex-col gap-3 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                        <div className="flex justify-between items-center">
+                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-purple-600">Available Sizes / Variants</h4>
+                            <button type="button" onClick={handleAddVariant} className="text-[10px] font-bold flex items-center gap-1 text-gray-500 hover:text-purple-600"><Plus size={12} /> Add Variant</button>
                         </div>
 
-                        <form onSubmit={handleSave} className="p-6 flex flex-col gap-6 max-h-[75vh] overflow-y-auto">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold uppercase text-gray-400">Name</label>
-                                    <input type="text" required className="input-field py-2.5" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                        {formData.variants?.map((v, idx) => (
+                            <div key={idx} className="flex gap-3 items-end">
+                                <div className="flex-1">
+                                    <input
+                                        placeholder="Size (e.g. A4)"
+                                        className="input-field py-2 text-xs"
+                                        value={v.size}
+                                        onChange={e => handleVariantChange(idx, 'size', e.target.value)}
+                                    />
                                 </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold uppercase text-gray-400">Slug</label>
-                                    <input type="text" className="input-field py-2.5 font-mono text-xs" value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })} />
+                                <div className="w-24">
+                                    <input
+                                        type="number"
+                                        placeholder="+ Rs."
+                                        className="input-field py-2 text-xs"
+                                        value={v.priceModifier}
+                                        onChange={e => handleVariantChange(idx, 'priceModifier', e.target.value)}
+                                    />
                                 </div>
+                                <button type="button" onClick={() => handleRemoveVariant(idx)} className="p-2 text-gray-400 hover:text-red-500"><Trash2 size={16} /></button>
                             </div>
+                        ))}
 
-                            <div className="flex flex-col gap-1">
-                                <label className="text-[10px] font-bold uppercase text-gray-400">Description</label>
-                                <textarea className="input-field py-2.5 h-20 resize-none text-xs" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-4">
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold uppercase text-gray-400">Base Price (Rs.)</label>
-                                    <input type="number" required className="input-field py-2.5" value={formData.basePrice} onChange={e => setFormData({ ...formData, basePrice: e.target.value })} />
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold uppercase text-gray-400">Min. Quantity (MOQ)</label>
-                                    <input type="number" required className="input-field py-2.5" value={formData.minOrderQuantity} onChange={e => setFormData({ ...formData, minOrderQuantity: e.target.value })} />
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold uppercase text-gray-400">Category</label>
-                                    <select className="input-field py-2.5" value={formData.categoryId} onChange={e => setFormData({ ...formData, categoryId: e.target.value })}>
-                                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Variants Section */}
-                            <div className="flex flex-col gap-3 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
-                                <div className="flex justify-between items-center">
-                                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-purple-600">Available Sizes / Variants</h4>
-                                    <button type="button" onClick={handleAddVariant} className="text-[10px] font-bold flex items-center gap-1 text-gray-500 hover:text-purple-600"><Plus size={12} /> Add Variant</button>
-                                </div>
-
-                                {formData.variants?.map((v, idx) => (
-                                    <div key={idx} className="flex gap-3 items-end">
-                                        <div className="flex-1">
-                                            <input
-                                                placeholder="Size (e.g. A4)"
-                                                className="input-field py-2 text-xs"
-                                                value={v.size}
-                                                onChange={e => handleVariantChange(idx, 'size', e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="w-24">
-                                            <input
-                                                type="number"
-                                                placeholder="+ Rs."
-                                                className="input-field py-2 text-xs"
-                                                value={v.priceModifier}
-                                                onChange={e => handleVariantChange(idx, 'priceModifier', e.target.value)}
-                                            />
-                                        </div>
-                                        <button type="button" onClick={() => handleRemoveVariant(idx)} className="p-2 text-gray-400 hover:text-red-500"><Trash2 size={16} /></button>
-                                    </div>
-                                ))}
-
-                                {formData.variants.length === 0 && (
-                                    <p className="text-[10px] text-gray-400 italic text-center py-2 underline cursor-pointer" onClick={handleAddVariant}>No variants defined. Click to add.</p>
-                                )}
-                            </div>
-
-                            <div className="flex flex-col gap-1">
-                                <label className="text-[10px] font-bold uppercase text-gray-400">Images JSON</label>
-                                <textarea className="input-field py-2 font-mono text-[10px] h-16" value={formData.images} onChange={e => setFormData({ ...formData, images: e.target.value })} />
-                            </div>
-
-                            <div className="flex gap-4 mt-2">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 text-[10px] font-bold uppercase text-gray-400">Discard</button>
-                                <button type="submit" className="flex-[2] btn-primary py-3 rounded-xl bg-purple-600 hover:bg-purple-700 flex items-center justify-center gap-2">
-                                    <Save size={18} /> Commit Product
-                                </button>
-                            </div>
-                        </form>
+                        {formData.variants.length === 0 && (
+                            <p className="text-[10px] text-gray-400 italic text-center py-2 underline cursor-pointer" onClick={handleAddVariant}>No variants defined. Click to add.</p>
+                        )}
                     </div>
-                </div>
-            )}
+
+                    <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-bold uppercase text-gray-400">Images JSON</label>
+                        <textarea className="input-field py-2 font-mono text-[10px] h-16" value={formData.images} onChange={e => setFormData({ ...formData, images: e.target.value })} />
+                    </div>
+
+                    <div className="flex gap-4 mt-2">
+                        <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 text-[10px] font-bold uppercase text-gray-400">Discard</button>
+                        <button type="submit" className="flex-[2] btn-primary py-3 rounded-xl bg-purple-600 hover:bg-purple-700 flex items-center justify-center gap-2">
+                            <Save size={18} /> Commit Product
+                        </button>
+                    </div>
+                </form>
+            </PortalModal>
         </div>
     );
 };

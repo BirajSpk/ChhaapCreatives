@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Edit, Trash2, Search, Loader2, Eye, Calendar, Sparkles, X } from 'lucide-react';
+import { FileText, Plus, Edit, Trash2, Search, Loader2, Eye, Calendar, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { PortalModal } from '../components/Modal/PortalModal';
 
 const AdminBlogs = () => {
     const { user } = useAuth();
@@ -231,33 +232,15 @@ const AdminBlogs = () => {
                 </div>
             )}
 
-            {/* Blog Editor Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-                    {/* Backdrop - positioned absolutely to appear under modal */}
-                    <div 
-                        className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[-1]" 
-                        onClick={() => setIsModalOpen(false)} 
-                    />
-                    
-                    {/* Modal Container */}
-                    <div className="bg-white dark:bg-[#121212] w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative border border-white/10 animate-scale-in">
-                        {/* Modal Header - sticky with proper z-index */}
-                        <div className="p-8 flex justify-between items-center border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 sticky top-0 z-[1010]">
-                            <div className="flex flex-col">
-                                <h2 className="text-xl font-display font-black dark:text-white uppercase tracking-tighter">
-                                    {editingBlog ? 'Edit' : 'Create'} <span className="text-brand-600 text-sm italic font-sans lowercase">Article</span>
-                                </h2>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Content Management</p>
-                            </div>
-                            <button onClick={() => setIsModalOpen(false)} className="h-10 w-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        {/* Modal Content */}
-                        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                            <form onSubmit={handleSave} className="flex flex-col gap-6">
+            {/* Blog Editor Modal - using Portal for proper z-index stacking */}
+            <PortalModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={editingBlog ? 'Edit' : 'Create'}
+                subtitle="Content Management"
+                size="max-w-2xl"
+            >
+                <form onSubmit={handleSave} className="flex flex-col gap-6">
                                 {/* Title */}
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 px-1">Article Title</label>
@@ -340,35 +323,32 @@ const AdminBlogs = () => {
                                     </label>
                                 </div>
 
-                                {/* Form Actions */}
-                                <div className="flex gap-4 pt-4 border-t border-gray-100 dark:border-white/5">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsModalOpen(false)}
-                                        className="flex-1 py-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-200 dark:hover:bg-white/10 transition-all"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={isSaving}
-                                        className="flex-1 py-3 rounded-xl bg-brand-600 text-white font-bold hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-                                    >
-                                        {isSaving ? (
-                                            <>
-                                                <Loader2 className="animate-spin" size={16} />
-                                                Saving...
-                                            </>
-                                        ) : (
-                                            editingBlog ? 'Update Article' : 'Create Article'
-                                        )}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            )}
+                            {/* Form Actions */}
+                            <div className="flex gap-4 pt-4 border-t border-gray-100 dark:border-white/5">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="flex-1 py-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-200 dark:hover:bg-white/10 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSaving}
+                                    className="flex-1 py-3 rounded-xl bg-brand-600 text-white font-bold hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                                >
+                                    {isSaving ? (
+                                        <>
+                                            <Loader2 className="animate-spin" size={16} />
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        editingBlog ? 'Update Article' : 'Create Article'
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+            </PortalModal>
         </div>
     );
 };

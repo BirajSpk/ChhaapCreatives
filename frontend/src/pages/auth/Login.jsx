@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, LogIn, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, LogIn, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { PasswordInput } from '../../components/inputs/PasswordInput';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
@@ -16,8 +17,15 @@ const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-    const { login: setAuthUser } = useAuth();
+    const { login: setAuthUser, user } = useAuth();
     const navigate = useNavigate();
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (user) {
+            navigate('/profile', { replace: true });
+        }
+    }, [user, navigate]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -108,19 +116,14 @@ const Login = () => {
                                 Forgot password?
                             </Link>
                         </div>
-                        <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                            <input
-                                name="password"
-                                type="password"
-                                placeholder="••••••••"
-                                className={`input-field pl-12 ${errors.password ? 'border-red-500 focus:ring-red-500/50' : ''}`}
-                                value={formData.password}
-                                onChange={handleChange}
-                                disabled={isLoading}
-                            />
-                        </div>
-                        {errors.password && <span className="text-xs text-red-500 ml-1 mt-0.5">{errors.password}</span>}
+                        <PasswordInput
+                            name="password"
+                            placeholder="••••••••"
+                            value={formData.password}
+                            onChange={handleChange}
+                            error={errors.password}
+                            disabled={isLoading}
+                        />
                     </div>
 
                     <div className="flex items-center gap-3">

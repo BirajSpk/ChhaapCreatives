@@ -93,6 +93,23 @@ export default {
           '100%': { opacity: '1', transform: 'scale(1)' },
         },
       },
+      /* Global Z-Index Hierarchy */
+      zIndex: {
+        '0': '0',
+        '10': '10',
+        '20': '20',
+        '30': '30',
+        '40': '40',
+        '50': '50',
+        'auto': 'auto',
+        'base': '0',                    /* Base content - z-0 */
+        'dropdown': '500',              /* Dropdowns and tooltips - z-500 */
+        'sticky': '100',                /* Sticky nav/headers - z-100 */
+        'sidebar': '200',               /* Sidebar - z-200 */
+        'overlay': '900',               /* Backdrop overlay - z-900 */
+        'modal': '1000',                /* Modals and dialogs - z-1000 */
+        'portal-modal': '9999',         /* Portal modals (highest) - z-9999 */
+      },
     },
   },
   plugins: [],

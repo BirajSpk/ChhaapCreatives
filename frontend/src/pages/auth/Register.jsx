@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Phone, UserPlus, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, User, Phone, UserPlus, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { PasswordInput } from '../../components/inputs/PasswordInput';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
@@ -32,8 +33,15 @@ const Register = () => {
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-    const { login: setAuthUser } = useAuth();
+    const { login: setAuthUser, user } = useAuth();
     const navigate = useNavigate();
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (user) {
+            navigate('/profile', { replace: true });
+        }
+    }, [user, navigate]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -157,20 +165,16 @@ const Register = () => {
 
                         {/* Password */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-bold uppercase tracking-wider text-gray-500 ml-1">Password</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                    <input
-                                        name="password"
-                                        type="password"
-                                        placeholder="••••••••"
-                                        className={`input-field pl-11 text-sm ${errors.password ? 'border-red-500 focus:ring-red-500/50' : ''}`}
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        disabled={isLoading}
-                                    />
-                                </div>
+                            <div>
+                                <PasswordInput
+                                    name="password"
+                                    placeholder="••••••••"
+                                    label="Password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    error={errors.password}
+                                    disabled={isLoading}
+                                />
                                 {/* Strength Meter */}
                                 {formData.password && (
                                     <div className="mt-2 flex flex-col gap-1.5">
@@ -190,24 +194,18 @@ const Register = () => {
                                         </span>
                                     </div>
                                 )}
-                                {errors.password && <span className="text-[10px] leading-tight text-red-500 ml-1 mt-0.5">{errors.password}</span>}
                             </div>
 
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-bold uppercase tracking-wider text-gray-500 ml-1">Confirm</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                    <input
-                                        name="confirmPassword"
-                                        type="password"
-                                        placeholder="••••••••"
-                                        className={`input-field pl-11 text-sm ${errors.confirmPassword ? 'border-red-500 focus:ring-red-500/50' : ''}`}
-                                        value={formData.confirmPassword}
-                                        onChange={handleChange}
-                                        disabled={isLoading}
-                                    />
-                                </div>
-                                {errors.confirmPassword && <span className="text-[10px] leading-tight text-red-500 ml-1 mt-0.5">{errors.confirmPassword}</span>}
+                            <div>
+                                <PasswordInput
+                                    name="confirmPassword"
+                                    placeholder="••••••••"
+                                    label="Confirm Password"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    error={errors.confirmPassword}
+                                    disabled={isLoading}
+                                />
                             </div>
                         </div>
                     </div>
